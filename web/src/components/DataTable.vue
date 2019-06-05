@@ -7,7 +7,8 @@
       :key="key" >{{ key }}</div>
     <div :class="'b_row' + ' ' + pos(row, data)" v-for="row in data" :key="row['id']">
       <div :class="'b_item' + ' ' + pos(key, columns)" v-for="key in columns" :key="key">
-        {{ row[key] }}
+        <p v-if="elm(row[key])" v-html="row[key].innerHTML" ></p>
+        <template v-else>{{ row[key] }}</template>
       </div>
     </div>
   </div>
@@ -16,7 +17,7 @@
 </template>
 
 <script>
-import styleUtils from '../styleUtils/styleUtils.js'
+import StyleUtils from '../StyleUtils'
 
 const d = (r,a) => r && a ? a.slice().reverse() : a
 export default {
@@ -40,7 +41,8 @@ export default {
     reverse: function() {
       this.rev = !this.rev
     },
-    pos: styleUtils.listingSelector,
+    elm: e => e instanceof Element,
+    pos: StyleUtils.listingSelector,
   }
 }
 </script>
