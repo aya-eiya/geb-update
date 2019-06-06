@@ -1,46 +1,46 @@
 <template>
-<div class="b_log">
-  <p :class="'msg_'+lv">{{ message }}</p>
-</div>
+  <div class="b_log">
+    <p :class="'msg_'+lv">{{ message }}</p>
+  </div>
 </template>
 
 <script>
 export const LEVEL = {
-  I : 'info',
-  E : 'error',
-  W : 'warn',
-}
+  I: "info",
+  E: "error",
+  W: "warn"
+};
 
 export default {
-  name: 'LogMsg',
+  name: "LogMsg",
   props: {
     message: String,
-    level: String,
+    level: String
   },
   computed: {
-    lv: function(){
-      switch(this.level){
+    lv() {
+      switch (this.level) {
         case LEVEL.E:
-          return LEVEL.E
+          return LEVEL.E;
         case LEVEL.W:
-          return LEVEL.W
-        //case LEVEL.I:
+          return LEVEL.W;
+        // case LEVEL.I:
         default:
-          return LEVEL.I
+          return LEVEL.I;
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
 .msg_info {
-  color: #888
+  color: #888;
 }
 .msg_error {
-  color: #900
+  color: #900;
 }
 .msg_warn {
-  color: #060
+  color: #060;
 }
 </style>

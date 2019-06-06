@@ -2,11 +2,9 @@
   <div class="b_toggle_edit_text">
     <div v-if="edit">
       <textarea v-if="multiple" v-model="editText"/>
-      <input v-else v-model="editText" type="text"/>
+      <input v-else v-model="editText" type="text">
     </div>
-    <div v-else>
-      {{ text }}
-    </div>
+    <div v-else>{{ text }}</div>
   </div>
 </template>
 
@@ -17,17 +15,26 @@ export default {
     text: String,
     onSave: Function,
     multiple: Boolean,
-    mode: {validataion: (mode) => !!['edit', 'display'].find(mode)},
+    listener: Object,
+    mode: { validataion: mode => !!['edit', 'display'].find(mode) },
   },
-  data: function() {
+  data() {
     return {
       editText: this.text,
-    }
+    };
   },
   computed: {
-    edit: function() {
-      return this.mode === 'edit'
-    }
+    edit() {
+      return this.mode === 'edit';
+    },
   },
-}
+  method: {
+    cancel() {
+      this.editValues = this.values.slice();
+    },
+    save() {
+      this.onSave(this.editValues);
+    },
+  },
+};
 </script>

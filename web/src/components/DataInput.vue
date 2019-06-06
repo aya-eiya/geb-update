@@ -1,7 +1,8 @@
 <template>
-<div>
-  <input v-model="title" :placeholder="inputName" /> <button @click="save">Add</button>
-</div>
+  <div>
+    <input v-model="title" :placeholder="inputName">
+    <button @click="save">Add</button>
+  </div>
 </template>
 
 <script>
@@ -15,11 +16,11 @@ export default {
     title: '',
   }),
   methods: {
-    save: function() {
-      if(this.title) {
-        this.onSave(this.title)
+    save() {
+      if (this.title) {
+        this.onSave(this.title);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

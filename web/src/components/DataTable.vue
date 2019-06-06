@@ -1,101 +1,127 @@
 <template>
-<div>
-  <div class="b_list">
-    <div
-      class="b_head"
-      v-for="key in columns"
-      :key="key" >{{ key }}</div>
-    <div :class="'b_row' + ' ' + pos(row, displayData)" v-for="row in displayData" :key="row.id.id">
-      <div :class="'b_item' + ' ' + pos(key, columns)" v-for="key in columns" :key="key">
-        <template v-if="row[key].type === 'id'">
-          <span>{{ row[key].id }}</span>
-        </template>
-        <template v-if="row[key].type === 'text'">
-          <ToggleInputText
-            :text="row[key].text"
-            :multiple="row[key].multiple"
-            :onSave="row[key].onSave"
-            :mode="editMode(row)" />
-        </template>
-        <template v-if="row[key].type === 'select'">
-          {{ row[key].selected }}
-          <ToggleSelect
-            :options="row[key].options"
-            :values="row[key].values"
-            :multiple="row[key].multiple"
-            :onSave="row[key].onSave"
-            :mode="editMode(row)" />
-        </template>
-      </div>
-      <div>
-        <button @click="toggle(row)">{{ buttonMode(row) }}</button>
-        <button @click="cancel(row)">cancel</button>
+  <div>
+    <div class="b_list">
+      <div class="b_head" v-for="key in columns" :key="key">{{ key }}</div>
+      <div
+        :class="'b_row' + ' ' + pos(row, displayData)"
+        v-for="row in displayData"
+        :key="row.id.id"
+      >
+        <div :class="'b_item' + ' ' + pos(key, columns)" v-for="key in columns" :key="key">
+          <template v-if="row[key].type === 'id'">
+            <span>{{ row[key].id }}</span>
+          </template>
+          <template v-if="row[key].type === 'text'">
+            <ToggleInputText
+              :text="row[key].text"
+              :multiple="row[key].multiple"
+              :listener="listen(row)"
+              :onSave="row[key].onSave"
+              :mode="editMode(row)"
+            />
+          </template>
+          <template v-if="row[key].type === 'select'">
+            {{ row[key].selected }}
+            <ToggleSelect
+              :options="row[key].options"
+              :values="row[key].values"
+              :multiple="row[key].multiple"
+              :listener="listen(row)"
+              :onSave="row[key].onSave"
+              :mode="editMode(row)"
+            />
+          </template>
+        </div>
+        <div>
+          <button @click="editOrSave(row)">{{ buttonMode(row) }}</button>
+          <button @click="cancel(row)">cancel</button>
+        </div>
       </div>
     </div>
+    <button @click="reverse()">reverse</button>
   </div>
-  <button @click="reverse()">reverse</button>
-</div>
 </template>
 
 <script>
-import StyleUtils from '../StyleUtils'
+import StyleUtils from "../StyleUtils";
 
-import ToggleInputText from './parts/ToggleInputText.vue'
-import ToggleSelect from './parts/ToggleSelect.vue'
+import ToggleInputText from "./parts/ToggleInputText.vue";
+import ToggleSelect from "./parts/ToggleSelect.vue";
 
-const d = (r,a) => r && a ? a.slice().reverse() : a
+const d = (r, a) => (r && a ? a.slice().reverse() : a);
+const listener = {};
+
 export default {
-  name: 'DataTable',
+  name: "DataTable",
   props: {
     title: String,
     columns: Array,
-    dataSet: Array,
+    dataSet: Array
   },
   computed: {
-    displayData: function(){
-      return d(this.rev,this.dataSet)
+    displayData() {
+      return d(this.rev, this.dataSet);
     }
   },
-  data: function() {
+  data() {
     return {
       rev: false,
       editing: null,
-    }
+      listen(row) {
+        if (!listener[row.id]) {
+          listener[row.id] = { message: "init" };
+        }
+        return listener[row.id];
+      },
+      send(row, message) {
+        listener[row.id].message = message;
+
+        listener[row.id].message = "done";
+      }
+    };
   },
   methods: {
-    reverse: function() {
-      this.rev = !this.rev
+    reverse() {
+      this.rev = !this.rev;
     },
-    isEditMode: function(row) {
-      return row.id === this.editing
+    isEditMode(row) {
+      return row.id === this.editing;
     },
-    toggle: function (row) {
-      if(this.isEditMode(row)){
-        this.editing = null
+    toggle(row) {
+      if (this.isEditMode(row)) {
+        this.editing = null;
       } else {
-        this.editing = row.id
+        this.editing = row.id;
       }
     },
-    editMode: function (row) {
-      return !this.isEditMode(row) ? 'display' : 'edit'
+    editMode(row) {
+      return !this.isEditMode(row) ? "display" : "edit";
     },
-    buttonMode: function (row) {
-      return this.isEditMode(row) ? 'save' : 'edit'
+    buttonMode(row) {
+      return this.isEditMode(row) ? "save" : "edit";
     },
-    cancel: function(row) {
-      this.toggle(row)
+    cancel(row) {
+      const mode = this.buttonMode(row);
+      if (mode === "save") {
+        this.send(row, "cancel");
+      }
+      this.toggle(row);
     },
-    editOrSave: function(row) {
-      this.toggle(row)
+    editOrSave(row) {
+      const mode = this.buttonMode(row);
+      if (mode === "save") {
+        this.send(row, "save");
+      }
+      this.toggle(row);
     },
     elm: e => e instanceof Element,
-    pos: StyleUtils.listingSelector,
+    pos: StyleUtils.listingSelector
   },
   components: {
     ToggleInputText,
-    ToggleSelect,
-  },
-}
+    ToggleSelect
+  }
+};
 </script>
 
 <style scoped>
@@ -119,12 +145,12 @@ export default {
 }
 
 .b_item.first {
-  border-top-left-radius: 10px; 
-  border-bottom-left-radius: 10px; 
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
   flex: 0.1;
 }
 .b_item.last {
-  border-top-right-radius: 10px; 
-  border-bottom-right-radius: 10px; 
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 </style>
