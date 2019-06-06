@@ -5,6 +5,7 @@ import Details from './data/Details';
 import Tags from './data/Tags';
 
 import SampleDB from './data/repos/SampleDB';
+import SampleTrigger from './data/repos/SampleTrigger';
 
 Vue.config.productionTip = false
 const DB = {
@@ -14,10 +15,11 @@ const DB = {
   tags: new SampleDB('tags'),
   todoTagging: new SampleDB('todoTagging'),
 }
+DB.trigger = SampleTrigger.todoOnSave.bind(DB)
 
 new Vue({
   provide:{
-    todoList: new TodoList(DB.todos),
+    todoList: new TodoList(DB.todos, DB.trigger),
     details: new Details(DB.details, DB.todoDetail),
     tags: new Tags(DB.tags, DB.todoTagging),
   },

@@ -1,5 +1,5 @@
 
-import qu from './queryUtils'
+import qu from './QueryUtils'
 
 export const Nothing = new Object()
 export default class {

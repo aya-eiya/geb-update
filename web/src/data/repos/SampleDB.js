@@ -19,22 +19,24 @@ const defaultData = {
     {id: 2, name: 'Customer service', emoji: 'U+1F64F'},
   ],
   todoDetail: [
-    {todo_id: 0, detail_id: 0},
-    {todo_id: 1, detail_id: 1},
-    {todo_id: 2, detail_id: 2},
-    {todo_id: 3, detail_id: 3},
+    {id:0, todo_id: 0, detail_id: 0},
+    {id:1, todo_id: 1, detail_id: 1},
+    {id:2, todo_id: 2, detail_id: 2},
+    {id:3, todo_id: 3, detail_id: 3},
   ],
   todoTagging: [
-    {todo_id: 0, tag_id: 0},
-    {todo_id: 1, tag_id: 2},
-    {todo_id: 2, tag_id: 1},
-    {todo_id: 3, tag_id: 2},
+    {id:0, todo_id: 0, tag_id: 0},
+    {id:1, todo_id: 1, tag_id: 0},
+    {id:2, todo_id: 1, tag_id: 2},
+    {id:3, todo_id: 2, tag_id: 1},
+    {id:4, todo_id: 3, tag_id: 2},
   ]
 }
 
 export default class {
-  constructor(key) {
-    this._dataSet = (key in defaultData) ? defaultData[key].slice() : {}
+  constructor(name) {
+    this._name = name
+    this._dataSet = (name in defaultData) ? defaultData[name].slice() : {}
   }
 
   selectAll() {
@@ -43,7 +45,7 @@ export default class {
 
   selectByKeyValue(condition) {
     const c = condition
-    return this._dataSet.filter(i => c.func(i[c.key],c.value))
+    return this._dataSet.filter(i => c.func(i[c.key], c.value))
   }
 
   selectOneByKeyValue(condition) {
@@ -52,22 +54,27 @@ export default class {
     return undefined
   }
 
-  save(newDataSet) {
-    this._dataSet = newDataSet.slice()
-    return true
+  save(newDataSet, onSave = () => true) {
+    const prev = this._dataSet.slice()
+    if(onSave(prev, newDataSet)){
+      this._dataSet = newDataSet.slice()
+      return true
+    }
+    return false
   }
 
-  insert(data) {
-    const nextId = this._dataSet.reduce((o ,i) => {
+  insert(data, onSave = () => true) {
+    const nextId = this._dataSet.reduce((o, i) => {
       if(i.id >= o) {
         return i.id + 1
       }
       return o
     }, 0)
-    data.id = nextId
+    const _data = {...data}
+    _data.id = nextId
     const ds = this.selectAll()
-    ds.push(data)
-    this.save(ds)
-    return data
+    ds.push(_data)
+    this.save(ds, onSave)
+    return _data
   }
 }

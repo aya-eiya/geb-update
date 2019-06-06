@@ -1,7 +1,8 @@
 export default class{
 
-  constructor(repos){
+  constructor(repos, onSave){
     this.repos = repos;
+    this.onSave = onSave;
   }
 
   getAll() {
@@ -9,10 +10,10 @@ export default class{
   }
 
   save(dataSet) {
-    return this.repos.save(dataSet)
+    return this.repos.save(dataSet, this.onSave)
   }
 
   insert(todo) {
-    return this.repos.insert(todo)
+    return this.repos.insert(todo, this.onSave)
   }
 }

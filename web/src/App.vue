@@ -29,37 +29,56 @@ export default {
   name: 'app',
   inject: [ 'todoList', 'details', 'tags' ],
   data: function(){
-    const dataSet = this.todoList.getAll()
-    if(!dataSet) {
-      return {} 
-    }
     const columns = [
       'id',
       'title',
-      'tag-name',
-      'tag-emoji',
+      'tag',
       'detail',
     ]
-    dataSet.forEach(todo => {
-      const det = this.details.of(todo)
-      const tags = this.tags.of(todo)
-      todo['tag-name'] = tags.map(i=>i.name).join(',')
-      todo['tag-emoji'] = tags.reduce((q, i) => { 
-          const el = document.createElement('span')
-          el.innerHTML = '&'+i.emoji.replace('U+','#x')+';'
-          el.title = i.name
-          q.appendChild(el)
-          return q
-        }, document.createElement('p')
-      )
-      todo['detail'] = det.description
-    })
     return {
       inputName,
       title,
       columns,
-      dataSet,
-      message:'init',
+      orgTodoList: this.todoList.getAll(),
+      message:' ',
+    }
+  },
+  computed: {
+    dataSet: function(){
+      const todos = this.orgTodoList
+      if(!todos) {
+        return []
+      }
+      return todos.map(todo => {
+        const tags = this.tags.of(todo)
+        const detail = this.details.of(todo)
+        const allTags = this.tags.getAll()
+        return {
+          id: {
+            type: 'id',
+            id: todo.id,
+          },
+          title: {
+            type: 'text',
+            multiple: false,
+            text: todo.title,
+          },
+          tag: {
+            type: 'select',
+            multiple: true,
+            options: allTags.map(tag => ({
+              value: tag.name,
+              display: tag.emoji.replace(/^U\+(.+)/,'&#x$1;:' + tag.name),
+            })),
+            values: tags.map(tag=>tag.name)
+          },
+          detail: {
+            type: 'text',
+            multiple: true,
+            text: detail.description,
+          },
+        }
+      })
     }
   },
   methods: {
@@ -70,9 +89,9 @@ export default {
           title: newTodo,
         }
       )
+      this.orgTodoList = this.todoList.getAll() 
       this.message = `${JSON.stringify(t)} added`
       setTimeout(()=>{this.message = ''}, 1500)
-      this.dataSet = this.todoList.getAll()
     }
   },
   components: {

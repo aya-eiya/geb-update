@@ -1,4 +1,4 @@
-import qu from './queryUtils'
+import qu from './QueryUtils'
 
 export const Nothing = new Object()
 export default class {
@@ -6,6 +6,10 @@ export default class {
   constructor(repos, todoRel){
     this.repos = repos
     this.todoRel = todoRel
+  }
+
+  getAll() {
+    return this.repos.selectAll()
   }
 
   of(todo) {
