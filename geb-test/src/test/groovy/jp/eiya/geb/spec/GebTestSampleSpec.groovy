@@ -6,15 +6,21 @@ import jp.eiya.geb.page.GebTestSamplePage
 
 class GebTestSampleSpec extends GebSpec {
 
-    def 'a search word can be input'(){
+    def 'new todo can be input'(){
         setup:
             to GebTestSamplePage
 
         when:
-            $('input[type=text]')[0].value(inputWord)
+            todoInput.value(inputWord)
 
         then:
-            $('input[type=text]')[0].value() == expectWord
+            todoInput.value() == expectWord
+
+        when:
+            todoAdd.click()
+
+        then:
+            lastTodoContent.text() == expectWord
 
         where:
         inputWord || expectWord
