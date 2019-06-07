@@ -1,7 +1,9 @@
 <template>
   <div class="b_input">
-    <input v-model="title" :placeholder="inputName">
-    <button @click="save">Add</button>
+    <p>
+      <input v-model="title" :placeholder="inputName">
+      <button @click="save">Add</button>
+    </p>
   </div>
 </template>
 
