@@ -25,47 +25,13 @@ export default {
       inputName,
       title,
       columns,
-      orgTodoList: this.todoList.getAll(),
+      renew: false,
       message: ' ',
+      dataSet: [],
     };
   },
-  computed: {
-    dataSet() {
-      const todos = this.orgTodoList;
-      if (!todos) {
-        return [];
-      }
-      return todos.map((todo) => {
-        const tags = this.tags.of(todo);
-        const detail = this.details.of(todo);
-        const allTags = this.tags.getAll();
-        return {
-          id: {
-            type: 'id',
-            id: todo.id,
-          },
-          title: {
-            type: 'text',
-            multiple: false,
-            text: todo.title,
-          },
-          tag: {
-            type: 'select',
-            multiple: true,
-            options: allTags.map(tag => ({
-              value: tag.name,
-              display: tag.emoji.replace(/^U\+(.+)/, `&#x$1;:${tag.name}`),
-            })),
-            values: tags.map(tag => tag.name),
-          },
-          detail: {
-            type: 'text',
-            multiple: true,
-            text: detail.description,
-          },
-        };
-      });
-    },
+  mounted() {
+    this.reload();
   },
   methods: {
     onSave(newTodo) {
@@ -73,11 +39,60 @@ export default {
         id: null,
         title: newTodo,
       });
-      this.orgTodoList = this.todoList.getAll();
       this.message = `${JSON.stringify(t)} added`;
       setTimeout(() => {
         this.message = '';
       }, 1500);
+      this.reload();
+    },
+    makeViewModel(todo) {
+      const tags = this.tags.of(todo);
+      const detail = this.details.of(todo);
+      const allTags = this.tags.getAll();
+      return {
+        id: {
+          type: 'id',
+          id: todo.id,
+        },
+        title: {
+          type: 'text',
+          multiple: false,
+          text: todo.title,
+          onSave: (newTitle) => {
+            const newTodo = { ...todo, title: newTitle };
+            this.todoList.update(newTodo);
+            this.reload();
+          },
+        },
+        tag: {
+          type: 'select',
+          multiple: true,
+          options: allTags.map(tag => ({
+            value: tag.name,
+            display: tag.emoji.replace(/^U\+(.+)/, `&#x$1;:${tag.name}`),
+          })),
+          values: tags.map(tag => tag.name),
+          onSave: (newValues) => {
+            const newTags = newValues.map(v => allTags.find(t => t.name === v));
+            this.tags.setTags(todo, newTags);
+            this.reload();
+          },
+        },
+        detail: {
+          type: 'text',
+          multiple: true,
+          text: detail.description,
+          onSave: (newDescription) => {
+            detail.description = newDescription;
+            this.details.describe(todo, detail);
+            this.reload();
+          },
+        },
+      };
+    },
+    reload() {
+      // TODO async and multiple request control
+      this.dataSet = this.todoList.getAll().map(this.makeViewModel);
     },
   },
   components: {

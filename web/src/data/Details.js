@@ -22,4 +22,8 @@ export default class {
     if (qu.checkRel(one, Nothing) === Nothing) return Nothing;
     return one;
   }
+
+  describe(todo, details) {
+    this.repos.update(details);
+  }
 }

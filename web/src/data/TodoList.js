@@ -15,4 +15,8 @@ export default class {
   insert(todo) {
     return this.repos.insert(todo, this.onSave);
   }
+
+  update(todo) {
+    return this.repos.update(todo);
+  }
 }

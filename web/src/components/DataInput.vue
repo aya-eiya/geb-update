@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="b_input">
     <input v-model="title" :placeholder="inputName">
     <button @click="save">Add</button>
   </div>
@@ -24,3 +24,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.b_input {
+  display: flex;
+}
+</style>

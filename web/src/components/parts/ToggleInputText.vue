@@ -3,6 +3,7 @@
     <div v-if="edit">
       <textarea v-if="multiple" v-model="editText"/>
       <input v-else v-model="editText" type="text">
+      <button @click="cancel">cancel</button>
     </div>
     <div v-else>{{ text }}</div>
   </div>
@@ -23,17 +24,31 @@ export default {
       editText: this.text,
     };
   },
+  mounted() {
+    const { save, cancel } = this;
+    this.listener.resolver = (message) => {
+      switch (message) {
+        case 'save':
+          save();
+          break;
+        case 'cancel':
+          cancel();
+          break;
+        default:
+      }
+    };
+  },
   computed: {
     edit() {
       return this.mode === 'edit';
     },
   },
-  method: {
+  methods: {
     cancel() {
-      this.editValues = this.values.slice();
+      this.editText = this.text;
     },
     save() {
-      this.onSave(this.editValues);
+      this.onSave(this.editText);
     },
   },
 };

@@ -40,16 +40,16 @@ const defaultData = {
 export default class {
   constructor(name) {
     this.name = name;
-    this.dataSet = name in defaultData ? defaultData[name].slice() : {};
+    this.dataSet = name in defaultData ? defaultData[name].slice() : [];
   }
 
   selectAll() {
-    return this.dataSet.slice();
+    return this.dataSet.slice().map(o => ({ ...o }));
   }
 
   selectByKeyValue(condition) {
     const c = condition;
-    return this.dataSet.filter(i => c.func(i[c.key], c.value));
+    return this.dataSet.filter(i => c.func(i[c.key], c.value)).map(o => ({ ...o }));
   }
 
   selectOneByKeyValue(condition) {
@@ -80,5 +80,18 @@ export default class {
     ds.push(newData);
     this.save(ds, onSave);
     return newData;
+  }
+
+  update(data) {
+    const t = this.dataSet.find(d => d.id === data.id);
+    const p = this.dataSet.indexOf(t);
+    const newDataSet = this.dataSet.slice();
+    newDataSet.splice(p, this.dataSet.length - p, data, ...this.dataSet.slice(p + 1));
+    this.save(newDataSet);
+  }
+
+  deleteByKeyValue(condition) {
+    const c = condition;
+    this.save(this.dataSet.filter(i => !c.func(i[c.key], c.value)));
   }
 }

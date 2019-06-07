@@ -6,16 +6,16 @@
 
 <script>
 export const LEVEL = {
-  I: "info",
-  E: "error",
-  W: "warn"
+  I: 'info',
+  E: 'error',
+  W: 'warn',
 };
 
 export default {
-  name: "LogMsg",
+  name: 'LogMsg',
   props: {
     message: String,
-    level: String
+    level: String,
   },
   computed: {
     lv() {
@@ -28,8 +28,8 @@ export default {
         default:
           return LEVEL.I;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

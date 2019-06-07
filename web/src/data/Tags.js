@@ -26,4 +26,19 @@ export default class {
     if (qu.checkRels(rs, Nothing) === Nothing) return Nothing;
     return rs;
   }
+
+  setTags(todo, tags) {
+    this.todoRel.deleteByKeyValue({
+      key: 'todo_id',
+      value: todo.id,
+      func: qu.eq,
+    });
+    tags.forEach((tag) => {
+      this.todoRel.insert({
+        id: null,
+        todo_id: todo.id,
+        tag_id: tag.id,
+      });
+    });
+  }
 }

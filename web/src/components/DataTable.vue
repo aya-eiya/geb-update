@@ -1,13 +1,12 @@
 <template>
   <div>
     <div class="b_list">
-      <div class="b_head" v-for="key in columns" :key="key">{{ key }}</div>
       <div
         :class="'b_row' + ' ' + pos(row, displayData)"
         v-for="row in displayData"
         :key="row.id.id"
       >
-        <div :class="'b_item' + ' ' + pos(key, columns)" v-for="key in columns" :key="key">
+        <div :class="`b_item col_${key} ${pos(key, columns)}`" v-for="key in columns" :key="key">
           <template v-if="row[key].type === 'id'">
             <span>{{ row[key].id }}</span>
           </template>
@@ -15,7 +14,7 @@
             <ToggleInputText
               :text="row[key].text"
               :multiple="row[key].multiple"
-              :listener="listen(row)"
+              :listener="listen(row.id, key)"
               :onSave="row[key].onSave"
               :mode="editMode(row)"
             />
@@ -26,8 +25,8 @@
               :options="row[key].options"
               :values="row[key].values"
               :multiple="row[key].multiple"
-              :listener="listen(row)"
               :onSave="row[key].onSave"
+              :listener="listen(row.id, key)"
               :mode="editMode(row)"
             />
           </template>
@@ -43,41 +42,58 @@
 </template>
 
 <script>
-import StyleUtils from "../StyleUtils";
+import StyleUtils from '../StyleUtils';
 
-import ToggleInputText from "./parts/ToggleInputText.vue";
-import ToggleSelect from "./parts/ToggleSelect.vue";
+import ToggleInputText from './parts/ToggleInputText.vue';
+import ToggleSelect from './parts/ToggleSelect.vue';
 
-const d = (r, a) => (r && a ? a.slice().reverse() : a);
-const listener = {};
+const d = (r, a) => (r && a ? a.slice().reverse() : a.slice());
+const listeners = {};
 
 export default {
-  name: "DataTable",
+  name: 'DataTable',
   props: {
     title: String,
     columns: Array,
-    dataSet: Array
+    dataSet: Array,
   },
   computed: {
     displayData() {
       return d(this.rev, this.dataSet);
-    }
+    },
   },
   data() {
     return {
       rev: false,
       editing: null,
-      listen(row) {
-        if (!listener[row.id]) {
-          listener[row.id] = { message: "init" };
+      listen(id, key) {
+        if (!listeners[id.id]) {
+          listeners[id.id] = {};
         }
-        return listener[row.id];
+        if (!listeners[id.id][key]) {
+          listeners[id.id][key] = { message: 'init' };
+        }
+        return listeners[id.id][key];
       },
-      send(row, message) {
-        listener[row.id].message = message;
-
-        listener[row.id].message = "done";
-      }
+      send(id, message) {
+        const listener = listeners[id.id];
+        Object.keys(listener)
+          .map(k => listener[k])
+          .forEach((l) => {
+            l.message = message;
+            const done = () => {
+              l.message = 'done';
+            };
+            if (l.resolver) {
+              const rez = l.resolver;
+              rez(message);
+              done();
+            } else {
+              done();
+            }
+          });
+      },
+      pos: StyleUtils.listingSelector,
     };
   },
   methods: {
@@ -95,32 +111,31 @@ export default {
       }
     },
     editMode(row) {
-      return !this.isEditMode(row) ? "display" : "edit";
+      return !this.isEditMode(row) ? 'display' : 'edit';
     },
     buttonMode(row) {
-      return this.isEditMode(row) ? "save" : "edit";
+      return this.isEditMode(row) ? 'save' : 'edit';
     },
     cancel(row) {
       const mode = this.buttonMode(row);
-      if (mode === "save") {
-        this.send(row, "cancel");
+      if (mode === 'save') {
+        this.send(row.id, 'cancel');
       }
       this.toggle(row);
     },
     editOrSave(row) {
       const mode = this.buttonMode(row);
-      if (mode === "save") {
-        this.send(row, "save");
+      if (mode === 'save') {
+        this.send(row.id, 'save');
       }
       this.toggle(row);
     },
     elm: e => e instanceof Element,
-    pos: StyleUtils.listingSelector
   },
   components: {
     ToggleInputText,
-    ToggleSelect
-  }
+    ToggleSelect,
+  },
 };
 </script>
 
